@@ -1,0 +1,174 @@
+/*
+Covid 19 Data Exploration Using SQL
+
+Skills Used in This Project: Joins, Aggregate Functions, and Converting Data Types
+
+Date: September 2021
+*/
+
+SELECT *
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	continent is not NULL 
+ORDER BY 
+	Location, Date;
+
+
+-- Pull the data that we are going use
+
+SELECT 
+	Location, 
+	date, 
+	total_cases, 
+	new_cases, 
+	total_deaths, 
+	population
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	continent is not NULL 
+ORDER BY 
+	Location, Date;
+
+
+/*Total Cases vs Total Deaths
+  If you contract covid in your country, how likely would you die?
+*/
+
+SELECT 
+	Location, 
+	date, 
+	total_cases,
+	total_deaths, 
+	(total_deaths/total_cases)*100 AS DeathPercentage
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	location like '%states%'
+AND 
+	continent is not NULL 
+ORDER BY 
+	Location, Date;
+
+
+/* Total Cases vs Population 
+Shows what percentage of population infected with Covid
+*/
+
+SELECT 
+	Location, 
+	date, 
+	Population, 
+	total_cases, 
+	(total_cases/population)*100 AS PercentPopulationInfected
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	location like '%states%'
+ORDER BY 
+	Location, Date;
+
+
+-- Looking for the countries with highest infection rate compared to their population
+
+SELECT 
+	Location, 
+	Population, 
+	MAX(total_cases) AS HighestInfectionCount,  
+	MAX((total_cases/population))*100 AS PercentPopulationInfected
+FROM 
+	dbo.CovidDeaths
+GROUP BY 
+	Location, 
+	Population
+ORDER BY 
+	PercentPopulationInfected DESC;
+
+
+-- Finding which countries with highest death count (per their population)
+
+SELECT 
+	Location, 
+	MAX(cast(Total_deaths AS INT)) AS TotalDeathCount
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	continent is not NULL 
+GROUP BY 
+	Location
+ORDER BY 
+	TotalDeathCount DESC;
+
+
+
+--Review death counts quicker by organzing them. In this case we're going with contintents and countries with the highest death count per population
+
+SELECT 
+	continent, 
+	MAX(cast(Total_deaths AS int)) AS TotalDeathCount
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	location like '%states%'
+WHERE 
+	continent is not NULL 
+GROUP BY 
+	continent
+ORDER BY 
+	TotalDeathCount DESC;
+
+SELECT 
+	Location, 
+	MAX(cast(Total_deaths AS int)) AS TotalDeathCount
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	location like '%states%' AND
+	continent is not NULL 
+GROUP BY 
+	Location
+ORDER BY 
+	TotalDeathCount DESC;
+
+
+-- Looking at countries and discovering which ones have higher percentage of those infected dying
+
+SELECT 
+	Location, 
+	SUM(new_cases) AS total_cases, 
+	SUM(cast(new_deaths AS int)) AS total_deaths, 
+	SUM(cast(new_deaths AS int))/SUM(New_Cases)*100 AS DeathPercentage
+FROM 
+	dbo.CovidDeaths
+WHERE 
+	continent is not NULL 
+AND 
+	total_cases is not NULL
+GROUP BY 
+	Location
+ORDER BY 
+	DeathPercentage DESC;
+
+
+/*
+Total Population vs Vaccinations
+Shows Percentage of Population that has recieved at least one Covid Vaccine
+*/
+
+SELECT 
+	d.continent, 
+	d.location, 
+	d.date, 
+	d.population, 
+	v.new_vaccinations, 
+	SUM(CONVERT(int,v.new_vaccinations)) OVER (Partition by d.Location ORDER BY d.location, d.Date) AS RollingPeopleVaccinated--, 
+	(RollingPeopleVaccinated/population)*100
+FROM 
+	dbo.CovidDeaths d
+JOIN 
+	dbo.CovidVaccinations v
+	ON d.location = v.location
+	AND d.date = v.date
+WHERE d.continent is not NULL 
+--ORDER BY date, total_cases;
