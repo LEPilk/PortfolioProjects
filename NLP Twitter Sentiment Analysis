@@ -1,0 +1,165 @@
+#Import Libraries and Datasets
+
+import pandas as pd   	#used for data frame manipulation
+import numpy as np    
+import seaborn as sns  	# seaborn and matplot are used primarily for data vistualization
+import matplotlib.pyplot as plt 
+
+tweets_df = pd.read_csv(twitter.csv)
+
+tweets_df.info() 		#to get a view of the dataframe
+tweets_df.describe 		#summary of the count, mean, std, min and max of the dataframe
+
+tweets_df['tweet']
+
+tweets_df = tweets_df.drop(['id'], axis = 1)  #drop id column from dataframe - mini-challenge 1
+
+#Explore Dataframe
+
+sns.heatmap(tweet_df.isnull(), yticklabels = False, cbar = False, cmap="Blues") # we want to make sure we don't have null elements in our data. We will plot a heatmap
+
+tweets_df.hist(bins =30, figsize= (13,5), color = 'r') #plot the histogram using red graph
+
+sns.countplot(tweets_df['label']) 						#plot similiar figure using seaborn's countplot - mini-challenge 2; actually like this better
+
+tweets_df['length'] = tweets_df['tweet'].apply(len)  	#we want to add the length of the tweets to our dataframe
+
+tweets_df['length'].plot(bins=100, kind='hist') 		#plot a historgram of the tweets' lengths
+
+tweets_df.df.describe()									#get a summary of the data with length info now included
+
+tweets_df[tweets_df['length'] == 11]['tweet'].iloc[0]   #let's see the shortest message
+
+tweets_df[tweets_df['length'] == 84]['tweet'].iloc[0]   #find the message with the average length - mini challenge 3, just info received through describe			
+
+#Breakdown my tweets into two dataframes - one is positive tweets and the other is with negative
+positive = tweets_df[tweets_df['label']==0]
+negative = tweets_df[tweets_df['label']==1]
+
+#Plot the Wordcloud
+sentences =tweets_df['tweet'].tolist()
+
+sentences_as_one_string = " ".join(sentences)
+
+!pip install WordCloud
+from wordcloud import WordCloud
+
+plt.figure(figsize=(20,20))
+plt.imshow(WordCloud().generate(sentences_as_one_string))
+
+
+#plot word cloud for negative dataframe, mini challenge 4
+negative_list = negative['tweet'].tolist()    
+negative_sentences_as_one_string = " ".join(negative_list)
+plt.figure(figsize=(20,20))
+plt.imshow(WordCloud().generate(negative_sentences_as_one_string))
+
+#Data Cleaning - Removing Punctuation from Text
+import sentences_as_one_string
+string.punctuation
+
+Test ='Good morning beautiful people :)... I am having fun learning Machine Learning and AI!!'
+Test_punc_removed = [ char for char in Test if char not in string.punctuation]
+
+# join the characters to form the string
+Test_punc_removed_join = ''.join(Test_punc_removed)
+
+#remove punctuation with another method, mini challenge 5
+Test_punc_removed = []
+for char in Test:
+	if char not in string.punctuation:
+	Test_punc_removed.append(char)	
+
+Test_punc_removed_join = ''.join(Test_punc_removed)
+
+#Data Cleaning - Remove Stop Words
+
+import nltk #natural language toolkit
+nltk.download('stopwords')
+
+from ntlk.corpus import stopwords #download the stopwords package
+stopwords.words('english')
+
+Test_punc_removed_join_clean = [word for word in Test_punc_removed_join.split() if word.lower() not in stopwords.words('english')]
+Test_punc_removed_join_clean 	#only keywords are left
+
+mini_challenge = 'Here is a challenge, that will teach you how to remove stopwords and punctuations!'	# create a pipleine to remove puncations then stopwords, mini challenge 6
+challenge = [ char for char in mini_challenge if char not in string.punctuation]
+challenge = ''.join(challenge)
+challenge = [ word for word in challenge.split() if word.lower() not in stopwords.words('english') ]
+
+#Perform Tokenization (Count Vectorizer)
+
+from sklearn.feature_extraction.text import CountVectorizer
+sample_data = ['This is the first paper.', 'This is the second paper.', 'And this is the third one.', 'Is this the first paper?' ]
+
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(sample_data)
+
+print(vectorizer.get_feature_names())
+print(X.toarray())
+
+# perform vectorization for hello world list, mini challenge 7
+mini_challenge_data = ['Hello World', 'Hello Hello World', 'Hello World world world']
+
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(mini_challenge_data)
+
+print(vectorizer.get_feature_names())
+print(X.toarray()) 
+#end mini challenge 7
+
+#Create a Pipeline to Remove Punctuations, Stopwords, and Count Vectorization
+
+def message_cleaning(message):
+	Test_punc_removed = [char for char in message if char not in string.punctuation]
+	Test_punc_removed_join = ''.join(Test_punc_removed)
+	Test_punc_removed_join_clean = [word for word in Test_punc_removed.split() if word.lower not in stopwords('english')]
+	return Test_punc_removed_join_clean
+
+tweets_df_clean = tweets_df['tweet'].apply(message_cleaning) #let's test the new function
+
+#compare the old and new data
+print(tweets_df['tweet'][5]) #original
+print(tweets_df_clean[5]) #cleaned up version
+
+from sklearn.feature_extraction.text import CountVectorizer 
+
+#define the cleaning pipeline we made
+vectorizer = CountVectorizer(analyzer =message_cleaning)
+tweets_countvectorizer = CountVectorizer(analyzer = message_cleaning, dtype = 'uint8').fit_transform(tweets_df['tweet'], dtype = 'uint8')
+
+print(vectorizer.get_feature_names())
+
+print(tweets_countvectorizer.toarray())
+
+tweets_countvectorizer.shape
+tweets= pd.DataFrame(tweets_countvectorizer.toarray())
+X = tweets
+y = tweets_df['label']
+
+#Train a Naive Bayes Classifier Model
+
+X.shape
+y.shape
+
+from sklearn.model_selection import train_test_split
+X_train, X-test, y_train, y_test = train_test_split(Xm y, test_size = 0.2)
+
+from sklearn.naive_bayes import MultinomialNB
+
+NB_classifier = MultinomialNB()
+NB_classifier.fit(X_train, y_train)
+
+#Assess Trained Model Performance
+
+from sklearn.metrics import classification_report, confusion_matrix
+
+#Predicting the Test set results
+y_predict_test = NB_classifier.predict(X_test)
+cm = confusion_matrix(y_test, y_predict_test)
+sns.heatmap(cm, annot=True)
+
+print(classification_report(y_test, y_predict_test))
+
+
