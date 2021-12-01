@@ -19,3 +19,10 @@ Skills Used in This Project: Joins, Aggregate Functions, and Converting Data Typ
 Used Python to train a Naive Bayes classifier to gauge sentiment from Tweets. 
 
 Skills Used in This Project: Machine Learning, Natural Language Processing
+
+### 2021 Kaggle Machine Learning & Data Science Survey
+This month (November 2021) I entered Kaggle's annual Machine Learning and Data Science Survey competition.
+
+Since completing my Google Data Analytics certification I've been working on small projects and using my new skills for my work as an online content manager (with a focus on personal finance).
+
+I'd love to learn more, but I've quickly discovered there's so much to the data analytics/science field. I'm reviewing the 2021 Survey to get a clearer idea of where to focus my attention this upcoming year.
